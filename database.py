@@ -188,3 +188,33 @@ class Database:
         except Exception as e:
             logger.error(f"Error checking if user {user_id} is banned: {e}")
             return False
+    
+    async def get_user_count(self) -> int:
+        """Get total number of users who have used the bot"""
+        try:
+            users_collection = self.db["users"]
+            return await users_collection.count_documents({})
+        except Exception as e:
+            logger.error(f"Error getting user count: {e}")
+            return 0
+    
+    async def add_user(self, user_id: int, username: str = None, first_name: str = None) -> bool:
+        """Add user to database"""
+        try:
+            users_collection = self.db["users"]
+            await users_collection.update_one(
+                {"user_id": user_id},
+                {
+                    "$set": {
+                        "user_id": user_id,
+                        "username": username,
+                        "first_name": first_name,
+                        "last_seen": datetime.now()
+                    }
+                },
+                upsert=True
+            )
+            return True
+        except Exception as e:
+            logger.error(f"Error adding user {user_id}: {e}")
+            return False
