@@ -239,12 +239,23 @@ def create_inline_result(media: dict, index: int):
     
     try:
         if file_type == "video":
-            from pyrogram.types import InlineQueryResultCachedVideo
+            from pyrogram.types import InlineQueryResultCachedVideo, InlineKeyboardMarkup, InlineKeyboardButton
+            
+            # Create custom keyboard with Search and Join buttons
+            keyboard = InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton("🔍 Search", switch_inline_query_current_chat=""),
+                    InlineKeyboardButton("📢 Join", url="https://t.me/daawotv")
+                ]
+            ])
+            
             return InlineQueryResultCachedVideo(
                 id=f"video_{index}",
                 video_file_id=file_id,
                 title=title,
-                description=description
+                description=description,
+                caption="KUSO BIIT @DAAWOTV",
+                reply_markup=keyboard
             )
             
         elif file_type == "document":
