@@ -32,18 +32,26 @@ class MediaSearchBot(Client):
 
     async def start(self):
         """Start the bot and initialize database"""
-        await super().start()
-
-        # Connect to database
         try:
-            await self.db.connect()
-            logger.info("📦 Database connected successfully!")
-        except Exception as e:
-            logger.error(f"Database connection failed: {e}")
+            await super().start()
+            logger.info("✅ Bot client started successfully!")
 
-        # Log bot info
-        me = await self.get_me()
-        logger.info(f"🤖 Logged in as {me.first_name} (@{me.username})")
+            # Connect to database
+            try:
+                await self.db.connect()
+                logger.info("📦 Database connected successfully!")
+            except Exception as e:
+                logger.error(f"❌ Database connection failed: {e}")
+                raise
+
+            # Log bot info
+            me = await self.get_me()
+            logger.info(f"🤖 Logged in as {me.first_name} (@{me.username})")
+            logger.info("🚀 Bot is now running!")
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to start bot: {e}")
+            raise
 
     async def stop(self, *args):
         """Stop the bot cleanly"""
