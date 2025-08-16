@@ -1,6 +1,10 @@
 """
-Main"""
-Main Bot Class - Handles Pyrogram Client Setup
+Main Bot Class
+--------------
+This file contains the main MediaSearchBot class which handles:
+- Pyrogram Client setup
+- Database initialization
+- Start & Stop lifecycle methods
 """
 
 import logging
