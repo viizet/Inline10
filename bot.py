@@ -1,4 +1,5 @@
 """
+Main"""
 Main Bot Class - Handles Pyrogram Client Setup
 """
 
@@ -21,25 +22,27 @@ class MediaSearchBot(Client):
             parse_mode=ParseMode.HTML,
             sleep_threshold=60
         )
-        
+
         # Initialize database
         self.db = Database()
-        
+
     async def start(self):
         """Start the bot and initialize database"""
         await super().start()
-        
+
         # Connect to database
-        await self.db.connect()
-        
-        # Get bot info
+        try:
+            self.db.connect()
+            logger.info("📦 Database connected successfully!")
+        except Exception as e:
+            logger.error(f"Database connection failed: {e}")
+
+        # Log bot info
         me = await self.get_me()
-        logger.info(f"Bot started as @{me.username}")
-        
-        # Set bot info for global access
-        self.me = me
-        
-    async def stop(self):
-        """Stop the bot and close database connection"""
-        await self.db.disconnect()
+        logger.info(f"🤖 Logged in as {me.first_name} (@{me.username})")
+
+    async def stop(self, *args):
+        """Stop the bot cleanly"""
         await super().stop()
+        self.db.close()
+        logger.info("🛑 Bot stopped. Goodbye!")
