@@ -8,6 +8,7 @@ from pymongo.errors import DuplicateKeyError
 from config import Config
 from typing import List, Dict, Any, Optional
 import re
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,12 @@ class Database:
         if self.client:
             self.client.close()
             logger.info("Disconnected from MongoDB")
+    
+    def close(self):
+        """Close database connection (sync version for bot.stop)"""
+        if self.client:
+            self.client.close()
+            logger.info("Database connection closed")
     
     async def save_media(self, media_data: Dict[str, Any]) -> bool:
         """Save media information to database"""
