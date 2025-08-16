@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: telegram-media-search-bot
+    env: python
+    buildCommand: pip install -r render_requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: API_ID
+        sync: false
+      - key: API_HASH
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: DATABASE_URI
+        sync: false
+      - key: ADMINS
+        sync: false
+      - key: CHANNELS
+        sync: false
+    autoDeploy: false
