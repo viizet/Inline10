@@ -22,7 +22,7 @@ class MediaSearchBot(Client):
             api_id=Config.API_ID,
             api_hash=Config.API_HASH,
             bot_token=Config.BOT_TOKEN,
-            plugins=dict(root="plugins"),
+            plugins=dict(root="Plugins"),
             parse_mode=ParseMode.HTML,
             sleep_threshold=60
         )
@@ -36,7 +36,7 @@ class MediaSearchBot(Client):
 
         # Connect to database
         try:
-            self.db.connect()
+            await self.db.connect()
             logger.info("📦 Database connected successfully!")
         except Exception as e:
             logger.error(f"Database connection failed: {e}")
