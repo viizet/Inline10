@@ -20,10 +20,12 @@ async def stats_command(client: Client, message: Message):
     try:
         stats = await client.db.get_stats()
         total_size = await client.db.get_total_size()
+        user_count = await client.db.get_user_count()
         
         stats_text = f"""
 📊 <b>Bot Statistics</b>
 
+👥 <b>Total Users:</b> {user_count:,}
 📁 <b>Total Files:</b> {stats['total_files']:,}
 💾 <b>Total Size:</b> {format_file_size(total_size)}
 
@@ -191,6 +193,80 @@ async def logger_command(client: Client, message: Message):
     except Exception as e:
         logger.error(f"Error in logger command: {e}")
         await message.reply("❌ Error reading log file.")
+
+@Client.on_message(filters.command("help"))
+async def help_command(client: Client, message: Message):
+    """Show help information"""
+    user_id = message.from_user.id
+    
+    # Check if user is admin
+    if user_id in Config.ADMINS:
+        help_text = """
+🤖 <b>Media Search Bot - Admin Help</b>
+
+<b>👤 User Commands:</b>
+• <code>/start</code> - Start the bot and show welcome message
+• <code>/help</code> - Show this help message
+
+<b>🔍 Search Usage:</b>
+• Type <code>@{bot_username} query</code> in any chat to search
+• Use file type filters: <code>query | video</code>
+• Example: <code>@{bot_username} python tutorial | video</code>
+
+<b>⚙️ Admin Commands:</b>
+• <code>/stats</code> - View detailed bot statistics
+• <code>/total</code> - Show total indexed files count
+• <code>/broadcast</code> - Send message to all users (reply to message)
+• <code>/ban &lt;user_id&gt;</code> - Ban a user from using the bot
+• <code>/unban &lt;user_id&gt;</code> - Unban a previously banned user
+• <code>/logger</code> - View recent bot logs
+• <code>/delete</code> - Delete media from database (reply to message)
+• <code>/index</code> - Manually index messages from channels
+
+<b>📝 File Type Filters:</b>
+• <code>| video</code> - Videos only
+• <code>| document</code> - Documents only  
+• <code>| audio</code> - Audio files only
+• <code>| photo</code> - Photos only
+• <code>| gif</code> - GIFs only
+"""
+    else:
+        help_text = """
+🤖 <b>Media Search Bot - Help</b>
+
+<b>🔍 How to Search:</b>
+• Type <code>@{bot_username} your query</code> in any chat
+• I'll show you relevant media files instantly
+• Tap on any result to share it
+
+<b>🎯 Search Examples:</b>
+• <code>@{bot_username} python tutorial</code>
+• <code>@{bot_username} movie | video</code>
+• <code>@{bot_username} ebook | document</code>
+• <code>@{bot_username} music | audio</code>
+• <code>@{bot_username} "exact phrase"</code>
+
+<b>📝 File Type Filters:</b>
+• <code>| video</code> - Videos only
+• <code>| document</code> - Documents only  
+• <code>| audio</code> - Audio files only
+• <code>| photo</code> - Photos only
+• <code>| gif</code> - GIFs only
+
+<b>📁 Supported Types:</b>
+🎬 Videos • 📄 Documents • 🎵 Audio • 🖼 Photos • 🎞 GIFs
+
+Need more help? Contact an admin.
+"""
+    
+    # Get bot username for examples
+    try:
+        bot_me = await client.get_me()
+        help_text = help_text.replace("{bot_username}", bot_me.username or "BotUsername")
+    except:
+        help_text = help_text.replace("{bot_username}", "BotUsername")
+    
+    await message.reply(help_text)
 
 @Client.on_message(filters.command("delete") & admin_filter)
 async def delete_command(client: Client, message: Message):
