@@ -254,7 +254,7 @@ def create_inline_result(media: dict, index: int):
                 video_file_id=file_id,
                 title=title,
                 description=description,
-                caption="KUSO BIIT @DAAWOTV",
+                caption=f"{file_name}\n\nKUSO BIIT @DAAWOTV",
                 reply_markup=keyboard
             )
             
