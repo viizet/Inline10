@@ -10,6 +10,8 @@ from config import Config
 
 logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
+
 @Client.on_message(filters.command("start") & filters.private)
 async def start_command(client: Client, message: Message):
     """Handle /start command"""
