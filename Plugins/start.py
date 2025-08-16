@@ -15,6 +15,12 @@ async def start_command(client: Client, message: Message):
     """Handle /start command"""
     user = message.from_user
     
+    # Track user in database
+    try:
+        await client.db.add_user(user.id, user.username, user.first_name)
+    except Exception as e:
+        logger.error(f"Error tracking user {user.id}: {e}")
+    
     # Check if user is subscribed to auth channel
     if not await is_subscribed(client, user.id):
         auth_channel_link = f"https://t.me/{Config.AUTH_CHANNEL}"
