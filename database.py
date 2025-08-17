@@ -382,3 +382,53 @@ class Database:
         except Exception as e:
             logger.error(f"Error getting most active users: {e}")
             return []
+    
+    async def log_not_found_search(self, user_id: int, query: str, username: str = None) -> bool:
+        """Log search query that returned no results"""
+        try:
+            not_found_collection = self.db["not_found_searches"]
+            await not_found_collection.insert_one({
+                "user_id": user_id,
+                "username": username,
+                "query": query.strip().lower(),
+                "timestamp": datetime.now()
+            })
+            return True
+        except Exception as e:
+            logger.error(f"Error logging not found search: {e}")
+            return False
+    
+    async def get_most_searched_not_found(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get most searched queries that returned no results"""
+        try:
+            not_found_collection = self.db["not_found_searches"]
+            
+            pipeline = [
+                {"$match": {"query": {"$ne": ""}}},  # Exclude empty queries
+                {"$group": {
+                    "_id": "$query",
+                    "search_count": {"$sum": 1},
+                    "last_searched": {"$max": "$timestamp"},
+                    "users_searched": {"$addToSet": "$user_id"}
+                }},
+                {"$addFields": {
+                    "unique_users": {"$size": "$users_searched"}
+                }},
+                {"$sort": {"search_count": -1}},
+                {"$limit": limit}
+            ]
+            
+            results = []
+            async for doc in not_found_collection.aggregate(pipeline):
+                results.append({
+                    "query": doc["_id"],
+                    "search_count": doc["search_count"],
+                    "unique_users": doc["unique_users"],
+                    "last_searched": doc["last_searched"]
+                })
+            
+            return results
+            
+        except Exception as e:
+            logger.error(f"Error getting most searched not found: {e}")
+            return []
