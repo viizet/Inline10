@@ -216,7 +216,7 @@ Qor <code>@{bot_username} magaca filimka</code> chat kasta.
 • Isticmaal <code>" "</code> magaca dhabta ah
 
 <b>❓ Caawimaad?</b>
-La xidhiidh maamulka bot-ka.
+La xidhiidh maamulka bot-ka.@viizet
 """
     
     # Get bot username for examples
