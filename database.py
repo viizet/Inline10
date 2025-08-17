@@ -152,26 +152,6 @@ class Database:
         except Exception as e:
             logger.error(f"Error deleting media: {e}")
             return False
-
-    async def update_media_title(self, chat_id: int, message_id: int, new_title: str) -> bool:
-        """Update media title in database"""
-        try:
-            result = await self.collection.update_one(
-                {
-                    "chat_id": chat_id,
-                    "message_id": message_id
-                },
-                {
-                    "$set": {
-                        "file_name": new_title,
-                        "updated_at": datetime.now()
-                    }
-                }
-            )
-            return result.modified_count > 0
-        except Exception as e:
-            logger.error(f"Error updating media title: {e}")
-            return False
     
     async def get_total_size(self) -> int:
         """Get total size of all files in bytes"""
