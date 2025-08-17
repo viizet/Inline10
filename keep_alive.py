@@ -14,4 +14,4 @@ def run():
 def keep_alive():
     t = threading.Thread(target=run)
     t.daemon = True   # si uu u socdo background
-    t.start()
+    t.start()()
