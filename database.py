@@ -30,6 +30,7 @@ class Database:
             await self.collection.create_index("file_unique_id", unique=True)
             await self.collection.create_index("chat_id")
             await self.collection.create_index("message_id")
+            await self.collection.create_index([("date", -1)])  # For recent media queries
             
             logger.info("Connected to MongoDB successfully")
             
@@ -154,7 +155,18 @@ class Database:
     async def get_recent_media(self, limit: int = 20) -> List[Dict[str, Any]]:
         """Get recent media files"""
         try:
-            cursor = self.collection.find({}).sort("date", -1).limit(limit)
+            # Add projection to only fetch necessary fields for better performance
+            cursor = self.collection.find(
+                {},
+                {
+                    "file_id": 1,
+                    "file_name": 1,
+                    "file_size": 1,
+                    "file_type": 1,
+                    "caption": 1,
+                    "date": 1
+                }
+            ).sort("date", -1).limit(limit)
             results = await cursor.to_list(length=limit)
             return results
             
