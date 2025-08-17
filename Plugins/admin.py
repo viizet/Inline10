@@ -21,7 +21,7 @@ async def stats_command(client: Client, message: Message):
         stats = await client.db.get_stats()
         total_size = await client.db.get_total_size()
         user_count = await client.db.get_user_count()
-
+        
         stats_text = f"""
 📊 <b>Bot Statistics</b>
 
@@ -31,7 +31,7 @@ async def stats_command(client: Client, message: Message):
 
 <b>📂 Files by Type:</b>
 """
-
+        
         for file_type, count in stats['by_type'].items():
             emoji_map = {
                 "video": "🎬",
@@ -42,15 +42,15 @@ async def stats_command(client: Client, message: Message):
             }
             emoji = emoji_map.get(file_type, "📎")
             stats_text += f"• {emoji} {file_type.title()}: {count:,}\n"
-
+        
         stats_text += f"\n<b>⚙️ Configuration:</b>\n"
         stats_text += f"• Indexed Channels: {len(Config.CHANNELS)}\n"
         stats_text += f"• Cache Time: {Config.CACHE_TIME}s\n"
         stats_text += f"• Max Results: {Config.MAX_RESULTS}\n"
         stats_text += f"• Caption Filter: {'✅' if Config.USE_CAPTION_FILTER else '❌'}\n"
-
+        
         await message.reply(stats_text)
-
+        
     except Exception as e:
         logger.error(f"Error in stats command: {e}")
         await message.reply("❌ Error retrieving statistics.")
@@ -61,12 +61,12 @@ async def total_command(client: Client, message: Message):
     try:
         stats = await client.db.get_stats()
         total_size = await client.db.get_total_size()
-
+        
         await message.reply(
             f"📊 <b>Total Files:</b> {stats['total_files']:,}\n"
             f"💾 <b>Total Size:</b> {format_file_size(total_size)}"
         )
-
+        
     except Exception as e:
         logger.error(f"Error in total command: {e}")
         await message.reply("❌ Error retrieving total count.")
@@ -77,26 +77,26 @@ async def broadcast_command(client: Client, message: Message):
     if not message.reply_to_message:
         await message.reply("❌ Reply to a message to broadcast it.")
         return
-
+    
     # Get all unique user IDs from database (if you store user data)
     # For now, we'll use a simple approach with AUTH_USERS
     users = Config.AUTH_USERS + Config.ADMINS
-
+    
     if not users:
         await message.reply("❌ No users found to broadcast to.")
         return
-
+    
     broadcast_msg = message.reply_to_message
     success_count = 0
     failed_count = 0
-
+    
     status_msg = await message.reply("📡 <b>Broadcasting...</b>\n\n⏳ Starting broadcast...")
-
+    
     for user_id in users:
         try:
             await broadcast_msg.copy(user_id)
             success_count += 1
-
+            
             # Update status every 10 users
             if (success_count + failed_count) % 10 == 0:
                 await status_msg.edit_text(
@@ -105,14 +105,14 @@ async def broadcast_command(client: Client, message: Message):
                     f"❌ Failed: {failed_count}\n"
                     f"⏳ Progress: {success_count + failed_count}/{len(users)}"
                 )
-
+            
             # Sleep to avoid flood limits
             await asyncio.sleep(0.1)
-
+            
         except Exception as e:
             failed_count += 1
             logger.error(f"Failed to send broadcast to {user_id}: {e}")
-
+    
     # Final status
     await status_msg.edit_text(
         f"📡 <b>Broadcast Complete!</b>\n\n"
@@ -125,18 +125,18 @@ async def broadcast_command(client: Client, message: Message):
 async def ban_command(client: Client, message: Message):
     """Ban a user from using the bot"""
     args = message.text.split(None, 1)
-
+    
     if len(args) < 2:
         await message.reply("❌ Usage: /ban <user_id>")
         return
-
+    
     try:
         user_id = int(args[1])
-
+        
         # Add to banned users
         await client.db.ban_user(user_id)
         await message.reply(f"✅ User {user_id} has been banned from using the bot.")
-
+            
     except ValueError:
         await message.reply("❌ Invalid user ID. Please provide a valid number.")
     except Exception as e:
@@ -147,18 +147,18 @@ async def ban_command(client: Client, message: Message):
 async def unban_command(client: Client, message: Message):
     """Unban a user"""
     args = message.text.split(None, 1)
-
+    
     if len(args) < 2:
         await message.reply("❌ Usage: /unban <user_id>")
         return
-
+    
     try:
         user_id = int(args[1])
-
+        
         # Remove from banned users
         await client.db.unban_user(user_id)
         await message.reply(f"✅ User {user_id} has been unbanned and can now use the bot.")
-
+            
     except ValueError:
         await message.reply("❌ Invalid user ID. Please provide a valid number.")
     except Exception as e:
@@ -177,19 +177,19 @@ async def logger_command(client: Client, message: Message):
         except FileNotFoundError:
             await message.reply("❌ Log file not found.")
             return
-
+        
         if not log_lines:
             await message.reply("📋 Log file is empty.")
             return
-
+        
         log_text = "📋 <b>Recent Log Entries:</b>\n\n"
         log_text += "<code>" + "".join(log_lines[-10:]) + "</code>"
-
+        
         if len(log_text) > 4000:
             log_text = log_text[:4000] + "\n... (truncated)"
-
+        
         await message.reply(log_text)
-
+        
     except Exception as e:
         logger.error(f"Error in logger command: {e}")
         await message.reply("❌ Error reading log file.")
@@ -198,7 +198,7 @@ async def logger_command(client: Client, message: Message):
 async def help_command(client: Client, message: Message):
     """Show help information"""
     user_id = message.from_user.id
-
+    
     # Check if user is admin
     if user_id in Config.ADMINS:
         help_text = """
@@ -232,39 +232,40 @@ async def help_command(client: Client, message: Message):
 """
     else:
         help_text = """
-🤖 <b>Caawimaad - Bot Filimka</b>
+🤖 <b>Media Search Bot - Help</b>
 
-<b>🔍 Sidee loo raadiyaa:</b>
-• Qor <code>@{bot_username} magaca filmka</code> chat walba
-• Waan ku siin doonaa filimada aad raadineysid
-• Riix filmka si aad u hesho
+<b>🔍 How to Search:</b>
+• Type <code>@{bot_username} your query</code> in any chat
+• I'll show you relevant media files instantly
+• Tap on any result to share it
 
-<b>🎯 Tusaalayaal sahlan:</b>
-• <code>@{bot_username} avengers</code>
-• <code>@{bot_username} titanic</code>
-• <code>@{bot_username} cabsi filim</code>
-• <code>@{bot_username} fast furious</code>
+<b>🎯 Search Examples:</b>
+• <code>@{bot_username} python tutorial</code>
+• <code>@{bot_username} movie | video</code>
+• <code>@{bot_username} ebook | document</code>
+• <code>@{bot_username} music | audio</code>
+• <code>@{bot_username} "exact phrase"</code>
 
-<b>📝 Noocyada Filimka:</b>
-🎭 Dagaal - Filimo dagaal
-😂 Majaajilo - Filimo qosol
-😱 Cabsi - Filimo argagax
-❤️ Jacayl - Filimo jacayl
-🚀 Khayaali - Filimo khayaali
+<b>📝 File Type Filters:</b>
+• <code>| video</code> - Videos only
+• <code>| document</code> - Documents only  
+• <code>| audio</code> - Audio files only
+• <code>| photo</code> - Photos only
+• <code>| gif</code> - GIFs only
 
-<b>🎬 Filimada Jira:</b>
-🎬 Filimo Video • 🎞 Sawirka Dhaqaaqa
+<b>📁 Supported Types:</b>
+🎬 Videos • 📄 Documents • 🎵 Audio • 🖼 Photos • 🎞 GIFs
 
-Caawimaad kale ma u baahan tahay? La xiriir maamulka.
+Need more help? Contact an admin.
 """
-
+    
     # Get bot username for examples
     try:
         bot_me = await client.get_me()
         help_text = help_text.replace("{bot_username}", bot_me.username or "BotUsername")
     except:
         help_text = help_text.replace("{bot_username}", "BotUsername")
-
+    
     await message.reply(help_text)
 
 @Client.on_message(filters.command("delete") & admin_filter)
@@ -273,23 +274,23 @@ async def delete_command(client: Client, message: Message):
     if not message.reply_to_message:
         await message.reply("❌ Reply to a media message to delete it from database.")
         return
-
+    
     replied_msg = message.reply_to_message
-
+    
     if not (replied_msg.video or replied_msg.document or replied_msg.audio or 
             replied_msg.photo or replied_msg.animation):
         await message.reply("❌ Replied message doesn't contain any media.")
         return
-
+    
     try:
         # Delete from database
         success = await client.db.delete_media(replied_msg.chat.id, replied_msg.id)
-
+        
         if success:
             await message.reply("✅ Media deleted from database successfully.")
         else:
             await message.reply("❌ Media not found in database or already deleted.")
-
+            
     except Exception as e:
         logger.error(f"Error deleting media: {e}")
         await message.reply("❌ Error deleting media from database.")
