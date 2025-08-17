@@ -291,7 +291,8 @@ class Database:
                         "username": username,
                         "first_name": first_name,
                         "last_seen": datetime.now()
-                    }
+                    },
+                    "$inc": {"search_count": 0}  # Initialize search count
                 },
                 upsert=True
             )
@@ -299,3 +300,85 @@ class Database:
         except Exception as e:
             logger.error(f"Error adding user {user_id}: {e}")
             return False
+    
+    async def log_search_query(self, user_id: int, query: str, username: str = None) -> bool:
+        """Log search query for analytics"""
+        try:
+            # Log the search query
+            search_logs_collection = self.db["search_logs"]
+            await search_logs_collection.insert_one({
+                "user_id": user_id,
+                "username": username,
+                "query": query.strip().lower(),
+                "timestamp": datetime.now()
+            })
+            
+            # Increment user's search count
+            users_collection = self.db["users"]
+            await users_collection.update_one(
+                {"user_id": user_id},
+                {"$inc": {"search_count": 1}},
+                upsert=True
+            )
+            
+            return True
+        except Exception as e:
+            logger.error(f"Error logging search query: {e}")
+            return False
+    
+    async def get_top_searched_movies(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get top searched movie queries"""
+        try:
+            search_logs_collection = self.db["search_logs"]
+            
+            # Aggregate search queries
+            pipeline = [
+                {"$match": {"query": {"$ne": ""}}},  # Exclude empty queries
+                {"$group": {
+                    "_id": "$query",
+                    "search_count": {"$sum": 1},
+                    "last_searched": {"$max": "$timestamp"}
+                }},
+                {"$sort": {"search_count": -1}},
+                {"$limit": limit}
+            ]
+            
+            results = []
+            async for doc in search_logs_collection.aggregate(pipeline):
+                results.append({
+                    "query": doc["_id"],
+                    "search_count": doc["search_count"],
+                    "last_searched": doc["last_searched"]
+                })
+            
+            return results
+            
+        except Exception as e:
+            logger.error(f"Error getting top searched movies: {e}")
+            return []
+    
+    async def get_most_active_users(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get most active users by search count"""
+        try:
+            users_collection = self.db["users"]
+            
+            cursor = users_collection.find(
+                {"search_count": {"$gt": 0}},
+                {"user_id": 1, "username": 1, "first_name": 1, "search_count": 1, "last_seen": 1}
+            ).sort("search_count", -1).limit(limit)
+            
+            results = []
+            async for user in cursor:
+                results.append({
+                    "user_id": user["user_id"],
+                    "username": user.get("username"),
+                    "first_name": user.get("first_name"),
+                    "search_count": user.get("search_count", 0),
+                    "last_seen": user.get("last_seen")
+                })
+            
+            return results
+            
+        except Exception as e:
+            logger.error(f"Error getting most active users: {e}")
+            return []
