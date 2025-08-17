@@ -230,6 +230,7 @@ La xidhiidh maamulka bot-ka.@viizet
 • <code>/stats</code> - View bot statistics
 • <code>/total</code> - Show total files count
 • <code>/top10</code> - Show top searched movies & active users
+• <code>/notfound</code> - Show most searched unavailable videos
 • <code>/broadcast</code> - Send message to all users
 • <code>/ban</code> - Ban a user
 • <code>/unban</code> - Unban a user
@@ -323,3 +324,37 @@ async def top10_command(client: Client, message: Message):
     except Exception as e:
         logger.error(f"Error in top10 command: {e}")
         await message.reply("❌ Error retrieving top 10 analytics data.")
+
+@Client.on_message(filters.command("notfound") & admin_filter)
+async def not_found_command(client: Client, message: Message):
+    """Show most searched queries that returned no results"""
+    try:
+        # Get most searched not found queries
+        not_found_searches = await client.db.get_most_searched_not_found(15)
+        
+        response = "🔍 <b>Most Searched Not Found Videos</b>\n\n"
+        response += "📋 <i>Videos users searched for but not available:</i>\n\n"
+        
+        if not_found_searches:
+            for i, search in enumerate(not_found_searches, 1):
+                query = search['query']
+                count = search['search_count']
+                unique_users = search['unique_users']
+                
+                # Limit query length for display
+                if len(query) > 35:
+                    query = query[:32] + "..."
+                
+                response += f"{i}. <code>{query}</code>\n"
+                response += f"   🔢 {count:,} searches by {unique_users} users\n\n"
+        else:
+            response += "• No not found search data available yet\n"
+        
+        response += "💡 <b>Tip:</b> Add these popular missing videos to increase user satisfaction!\n"
+        response += "\n<i>Use /top10 for overall search analytics</i>"
+        
+        await message.reply(response)
+        
+    except Exception as e:
+        logger.error(f"Error in notfound command: {e}")
+        await message.reply("❌ Error retrieving not found search data.")
