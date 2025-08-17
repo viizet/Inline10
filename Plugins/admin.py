@@ -194,6 +194,48 @@ async def logger_command(client: Client, message: Message):
         logger.error(f"Error in logger command: {e}")
         await message.reply("❌ Error reading log file.")
 
+@Client.on_message(filters.command("commands") & admin_filter)
+async def commands_command(client: Client, message: Message):
+    """Show all available admin commands"""
+    try:
+        commands_text = """
+🛠 <b>Admin Commands List</b>
+
+<b>📊 Statistics & Analytics:</b>
+• <code>/stats</code> - View comprehensive bot statistics
+• <code>/total</code> - Show total files count and storage size
+• <code>/top10</code> - Show top searched movies & active users
+• <code>/notfound</code> - Show most searched unavailable videos
+
+<b>📁 Media Management:</b>
+• <code>/index &lt;channel_id&gt; [limit]</code> - Manually index channel messages
+• <code>/delete</code> - Delete media from database (reply to media)
+
+<b>👥 User Management:</b>
+• <code>/ban &lt;user_id&gt;</code> - Ban a user from using the bot
+• <code>/unban &lt;user_id&gt;</code> - Unban a user
+• <code>/broadcast</code> - Send message to all users (reply to message)
+
+<b>🔧 System Management:</b>
+• <code>/logger</code> - View recent log entries
+• <code>/commands</code> - Show this commands list
+• <code>/help</code> - Show general help (user + admin commands)
+
+<b>💡 Usage Tips:</b>
+• Reply to messages when using /delete or /broadcast
+• Use channel ID with /index (e.g., -1001234567890)
+• Check /logger for troubleshooting issues
+• Use /stats regularly to monitor bot performance
+
+<b>👨‍💼 Admin Status:</b> ✅ Verified Admin Access
+"""
+        
+        await message.reply(commands_text)
+        
+    except Exception as e:
+        logger.error(f"Error in commands command: {e}")
+        await message.reply("❌ Error retrieving commands list.")
+
 @Client.on_message(filters.command("help"))
 async def help_command(client: Client, message: Message):
     """Show help information"""
