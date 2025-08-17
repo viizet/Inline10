@@ -254,3 +254,31 @@ async def delete_command(client: Client, message: Message):
     except Exception as e:
         logger.error(f"Error deleting media: {e}")
         await message.reply("❌ Error deleting media from database.")
+
+@Client.on_message(filters.command("cleanup") & admin_filter)
+async def cleanup_command(client: Client, message: Message):
+    """Show info about automatic cleanup feature"""
+    cleanup_info = """
+🧹 <b>Automatic Database Cleanup</b>
+
+✅ <b>Feature Active:</b> Auto-delete from database when videos are removed from channels
+
+<b>How it works:</b>
+• Bot monitors configured channels for deleted messages
+• When a video/media is deleted from channel, it's automatically removed from database
+• Keeps database clean and in sync with actual channel content
+• Logged for tracking and debugging
+
+<b>Monitored Channels:</b>
+"""
+    
+    for channel_id in Config.CHANNELS:
+        try:
+            chat = await client.get_chat(channel_id)
+            cleanup_info += f"• {chat.title} ({channel_id})\n"
+        except:
+            cleanup_info += f"• Channel {channel_id}\n"
+    
+    cleanup_info += f"\n📊 This feature helps maintain database accuracy automatically!"
+    
+    await message.reply(cleanup_info)
