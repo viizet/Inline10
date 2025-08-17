@@ -139,31 +139,4 @@ def get_file_type_emoji(file_type: str) -> str:
     }
     return emojis.get(file_type, "📁")
 
-def format_file_size(size_bytes: int) -> str:
-    """Format file size in human readable format"""
-    if size_bytes == 0:
-        return "0 B"
-    
-    size_names = ["B", "KB", "MB", "GB", "TB"]
-    import math
-    i = int(math.floor(math.log(size_bytes, 1024)))
-    p = math.pow(1024, i)
-    s = round(size_bytes / p, 2)
-    return f"{s} {size_names[i]}"
 
-async def is_subscribed(client, user_id: int) -> bool:
-    """Check if user is subscribed to required channels"""
-    # Add your subscription check logic here
-    # For now, return True to allow all users
-    return True
-
-async def is_authorized_user(user_id: int, client) -> bool:
-    """Check if user is authorized to use the bot"""
-    # Add your authorization logic here
-    # For now, return True to allow all users
-    return True
-
-async def is_admin(user_id: int) -> bool:
-    """Check if user is admin"""
-    from config import Config
-    return user_id in Config.ADMINSfile_type, "📎")
