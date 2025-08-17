@@ -139,4 +139,3 @@ def get_file_type_emoji(file_type: str) -> str:
     }
     return emojis.get(file_type, "📁")
 
-
