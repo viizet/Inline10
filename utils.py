@@ -53,27 +53,9 @@ def extract_media_info(message: Message) -> Optional[dict]:
     
     if message.video:
         media = message.video
-        # Try to get a meaningful filename from caption or use a descriptive name
-        file_name = media.file_name
-        if not file_name or file_name.startswith('video_') or file_name.isdigit():
-            # If no proper filename, try to extract from caption
-            if message.caption:
-                # Clean caption and use first meaningful words
-                caption_words = message.caption.strip().split()[:5]  # First 5 words
-                caption_name = ' '.join(caption_words)
-                # Remove special characters
-                import re
-                caption_name = re.sub(r'[^\w\s-]', '', caption_name).strip()
-                if caption_name:
-                    file_name = f"{caption_name}.mp4"
-                else:
-                    file_name = f"Video_{message.date.strftime('%Y%m%d_%H%M%S')}.mp4"
-            else:
-                file_name = f"Video_{message.date.strftime('%Y%m%d_%H%M%S')}.mp4"
-        
         media_info = {
             "file_type": "video",
-            "file_name": file_name,
+            "file_name": media.file_name or f"video_{message.id}.mp4",
             "file_size": media.file_size,
             "duration": media.duration,
             "file_unique_id": media.file_unique_id,
