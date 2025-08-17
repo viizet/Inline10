@@ -69,17 +69,15 @@ async def inline_query_handler(client: Client, query: InlineQuery):
     # Handle empty query - show recent media
     if not search_query:
         try:
-            # Get recent media files (limit to 20 for performance)
-            recent_media = await client.db.get_recent_media(limit=20)
+            # Get recent media files (limit to 10 for better performance with large datasets)
+            recent_media = await client.db.get_recent_media(limit=10)
             
             if not recent_media:
                 results = [
-                    InlineQueryResultDocument(
+                    InlineQueryResultArticle(
                         id="help",
                         title="🔍 No Media Found",
                         description="Add media to channels first, then search here",
-                        document_url="https://telegram.org/",
-                        mime_type="text/plain",
                         input_message_content=InputTextMessageContent(
                             "🔍 <b>No media files found</b>\n\n"
                             "To use this bot:\n"
@@ -103,39 +101,52 @@ async def inline_query_handler(client: Client, query: InlineQuery):
                     except Exception as e:
                         logger.error(f"Error creating inline result: {e}")
                         continue
+                
+                # Ensure we have at least some results
+                if not results:
+                    results = [
+                        InlineQueryResultArticle(
+                            id="fallback",
+                            title="🔍 Recent Videos Available",
+                            description="Type to search your media collection",
+                            input_message_content=InputTextMessageContent(
+                                "🔍 <b>Search your media collection</b>\n\n"
+                                f"You have {len(recent_media)} recent files available.\n"
+                                "Type your search query to find specific content."
+                            )
+                        )
+                    ]
             
             await query.answer(
                 results=results,
-                cache_time=30,
+                cache_time=10,  # Reduced cache time for recent media
                 is_personal=True
             )
             return
             
         except Exception as e:
             logger.error(f"Error getting recent media: {e}")
-            # Fallback to help message
-            from pyrogram.types import InlineQueryResultArticle
+            # Fallback - still try to show something useful
             results = [
                 InlineQueryResultArticle(
-                    id="help",
-                    title="🔍 Search Media Files",
-                    description="Type your search query to find media",
+                    id="search_prompt",
+                    title="🔍 Search Your 899 Videos",
+                    description="Type to search your media collection",
                     input_message_content=InputTextMessageContent(
-                        "🔍 <b>How to search:</b>\n\n"
-                        "• Type your search query\n"
-                        "• Add file type filters: <code>query | video</code>\n"
-                        "• Use quotes for exact phrases: <code>\"exact phrase\"</code>\n\n"
+                        "🔍 <b>Search your media collection</b>\n\n"
+                        "You have 899+ videos indexed!\n"
+                        "Type your search query to find specific content.\n\n"
                         "<b>Examples:</b>\n"
-                        "• <code>python tutorial | video</code>\n"
-                        "• <code>ebook | document</code>\n"
-                        "• <code>music | audio</code>"
+                        "• <code>action</code> - for action movies\n"
+                        "• <code>comedy</code> - for comedy films\n"
+                        "• <code>2023</code> - for recent movies"
                     )
                 )
             ]
             
             await query.answer(
                 results=results,
-                cache_time=10,
+                cache_time=5,
                 is_personal=True
             )
             return
