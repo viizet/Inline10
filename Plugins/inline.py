@@ -256,8 +256,9 @@ def create_inline_result(media: dict, index: int):
                 ]
             ])
 
+            # Use cached video but ensure original thumbnail is preserved
             return InlineQueryResultCachedVideo(
-                id=f"video_{index}",
+                id=f"video_{index}_{file_id}",  # Include file_id for uniqueness
                 video_file_id=file_id,
                 title=title,
                 description=description,
