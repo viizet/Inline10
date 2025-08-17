@@ -9,7 +9,7 @@ from pyrogram.types import (
     InlineQueryResultAudio, InlineQueryResultPhoto, InlineQueryResultAnimation,
     InlineQueryResultCachedVideo, InlineQueryResultCachedDocument,
     InlineQueryResultCachedAudio, InlineQueryResultCachedPhoto, InlineQueryResultCachedAnimation,
-    InputTextMessageContent
+    InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 )
 from utils import is_subscribed, is_authorized_user, format_file_size, get_file_type_emoji, escape_html
 from config import Config
@@ -153,14 +153,16 @@ async def inline_query_handler(client: Client, query: InlineQuery):
         logger.info(f"Found {len(media_results)} results")
 
         if not media_results:
-            # Log the not found search for analytics
-            await client.db.log_not_found_search(
-                user_id=user_id,
-                query=search_query,
-                username=query.from_user.username
-            )
+            # Log the not found search for analytics (if method exists)
+            try:
+                await client.db.log_not_found_search(
+                    user_id=user_id,
+                    query=search_query,
+                    username=query.from_user.username
+                )
+            except AttributeError:
+                logger.debug("log_not_found_search method not implemented")
             
-            from pyrogram.types import InlineQueryResultArticle
             results = [
                 InlineQueryResultArticle(
                     id="no_results",
@@ -201,7 +203,6 @@ async def inline_query_handler(client: Client, query: InlineQuery):
         logger.error(f"Error handling inline query: {e}")
 
         # Error result
-        from pyrogram.types import InlineQueryResultArticle
         results = [
             InlineQueryResultArticle(
                 id="error",
@@ -246,8 +247,6 @@ def create_inline_result(media: dict, index: int):
 
     try:
         if file_type == "video":
-            from pyrogram.types import InlineQueryResultCachedVideo, InlineKeyboardMarkup, InlineKeyboardButton
-
             # Create custom keyboard with Search and Join buttons
             keyboard = InlineKeyboardMarkup([
                 [
@@ -267,7 +266,6 @@ def create_inline_result(media: dict, index: int):
             )
 
         elif file_type == "document":
-            from pyrogram.types import InlineQueryResultCachedDocument
             return InlineQueryResultCachedDocument(
                 id=f"doc_{index}",
                 title=title,
@@ -276,7 +274,6 @@ def create_inline_result(media: dict, index: int):
             )
 
         elif file_type == "audio":
-            from pyrogram.types import InlineQueryResultCachedAudio
             return InlineQueryResultCachedAudio(
                 id=f"audio_{index}",
                 audio_file_id=file_id,
@@ -284,7 +281,6 @@ def create_inline_result(media: dict, index: int):
             )
 
         elif file_type == "photo":
-            from pyrogram.types import InlineQueryResultCachedPhoto
             return InlineQueryResultCachedPhoto(
                 id=f"photo_{index}",
                 photo_file_id=file_id,
@@ -293,7 +289,6 @@ def create_inline_result(media: dict, index: int):
             )
 
         elif file_type == "gif":
-            from pyrogram.types import InlineQueryResultCachedAnimation
             return InlineQueryResultCachedAnimation(
                 id=f"gif_{index}",
                 animation_file_id=file_id,
@@ -302,7 +297,6 @@ def create_inline_result(media: dict, index: int):
 
         else:
             # Fallback to document
-            from pyrogram.types import InlineQueryResultCachedDocument
             return InlineQueryResultCachedDocument(
                 id=f"file_{index}",
                 title=title,
