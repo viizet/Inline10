@@ -52,37 +52,25 @@ async def start_command(client: Client, message: Message):
     bot_username = (await client.get_me()).username
     
     welcome_text = f"""
-🎉 <b>Welcome to Media Search Bot!</b>
+🎬 <b>Soo dhawoow Bot-ka Filimada!</b>
 
-Hello {user.first_name}! I'm your personal media search assistant.
+Salaan {user.first_name}! Waxaan ku caawinayaa raadinta filimada.
 
-<b>🔍 How to use:</b>
-• Type <code>@{bot_username} your search query</code> in any chat
-• I'll show you relevant media files instantly
-• Tap on any result to share it
+<b>Sidee loo isticmaalo:</b>
+• Qor <code>@{bot_username} magaca filimka</code> chat kasta
+• Filimka rabtay ayaan ku siinayaa
+• Riix natijada aad rabto
 
-<b>🎯 Search Examples:</b>
-• <code>@{bot_username} python tutorial</code>
-• <code>@{bot_username} movie | video</code>
-• <code>@{bot_username} ebook | document</code>
-• <code>@{bot_username} music | audio</code>
-• <code>@{bot_username} "exact phrase"</code>
+<b>Tusaale:</b>
+• <code>@{bot_username} action movies</code>
+• <code>@{bot_username} comedy films</code>
 
-<b>📁 Supported Types:</b>
-🎬 Videos • 📄 Documents • 🎵 Audio • 🖼 Photos • 🎞 GIFs
-
-<b>✨ Features:</b>
-• Lightning fast search
-• Multiple file format support
-• Caption-based filtering
-• Real-time results
-
-Start typing <code>@{bot_username}</code> in any chat to begin searching!
+Bilow qorista <code>@{bot_username}</code> si aad u raadiso filimada!
 """
 
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎬 Search Movies", switch_inline_query_current_chat="")],
-        [InlineKeyboardButton("ℹ️ Help", callback_data="help")]
+        [InlineKeyboardButton("🎬 Raadi Filimada", switch_inline_query_current_chat="")],
+        [InlineKeyboardButton("ℹ️ Caawimaad", callback_data="help")]
     ])
     
     await message.reply(welcome_text, reply_markup=keyboard)
@@ -106,31 +94,24 @@ async def handle_callbacks(client: Client, callback_query):
     
     if data == "help":
         help_text = """
-ℹ️ <b>How to Use Media Search Bot</b>
+ℹ️ <b>Sidee loo isticmaalo Bot-ka Filimada</b>
 
-<b>🔍 Inline Search:</b>
-Type <code>@botusername query</code> in any chat to search for media files.
+<b>🔍 Raadinta:</b>
+Qor <code>@botusername magaca filimka</code> chat kasta.
 
-<b>🎯 Search Tips:</b>
-• Use specific keywords for better results
-• Add file type filters: <code>query | video</code>
-• Use quotes for exact phrases: <code>"exact phrase"</code>
-• Combine multiple terms for refined search
+<b>🎯 Tusaalooyin:</b>
+• <code>@botusername action movies</code>
+• <code>@botusername comedy films</code>
+• <code>@botusername horror movies</code>
+• <code>@botusername "specific movie name"</code>
 
-<b>📝 Supported Filters:</b>
-• <code>| video</code> - Videos only
-• <code>| document</code> - Documents only  
-• <code>| audio</code> - Audio files only
-• <code>| photo</code> - Photos only
-• <code>| gif</code> - GIFs only
+<b>📝 Tilmaamo:</b>
+• Isticmaal erayo gaar ah
+• Qor magaca filimka si sax ah
+• Isticmaal <code>" "</code> magaca dhabta ah
 
-<b>💡 Examples:</b>
-• <code>@botusername python programming | video</code>
-• <code>@botusername "machine learning" | document</code>
-• <code>@botusername relaxing music | audio</code>
-
-<b>❓ Need Help?</b>
-Contact bot administrators for assistance.
+<b>❓ Caawimaad?</b>
+La xidhiidh maamulka bot-ka.
 """
         await callback_query.edit_message_text(help_text)
 
