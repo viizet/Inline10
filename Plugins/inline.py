@@ -69,8 +69,8 @@ async def inline_query_handler(client: Client, query: InlineQuery):
     # Handle empty query - show recent media
     if not search_query:
         try:
-            # Get recent media files (limit to 10 for better performance with large datasets)
-            recent_media = await client.db.get_recent_media(limit=10)
+            # Get recent media files optimized for large collections
+            recent_media = await client.db.get_recent_media(limit=30)
             
             if not recent_media:
                 results = [
