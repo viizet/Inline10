@@ -211,6 +211,31 @@ class Database:
             logger.error(f"Error getting recent media: {e}")
             return []
     
+    async def get_recent_videos(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get recent videos specifically for empty queries"""
+        try:
+            projection = {
+                "file_id": 1,
+                "file_name": 1,
+                "file_size": 1,
+                "file_type": 1,
+                "caption": 1,
+                "date": 1
+            }
+            
+            # Get only videos, sorted by most recent
+            cursor = self.collection.find(
+                {"file_type": "video"},
+                projection
+            ).sort("date", -1).limit(limit)
+            
+            results = await cursor.to_list(length=limit)
+            return results
+            
+        except Exception as e:
+            logger.error(f"Error getting recent videos: {e}")
+            return []
+    
     async def ban_user(self, user_id: int) -> bool:
         """Ban a user from using the bot"""
         try:
