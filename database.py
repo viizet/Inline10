@@ -25,12 +25,14 @@ class Database:
             self.db = self.client[Config.DATABASE_NAME]
             self.collection = self.db[Config.COLLECTION_NAME]
             
-            # Create indexes for better search performance
+            # Create optimized indexes for large collections
             await self.collection.create_index([("file_name", "text"), ("caption", "text")])
             await self.collection.create_index("file_unique_id", unique=True)
             await self.collection.create_index("chat_id")
             await self.collection.create_index("message_id")
             await self.collection.create_index([("date", -1)])  # For recent media queries
+            await self.collection.create_index([("file_type", 1), ("date", -1)])  # Compound index for type + date
+            await self.collection.create_index("file_name")  # Additional index for filename searches
             
             logger.info("Connected to MongoDB successfully")
             
@@ -63,38 +65,51 @@ class Database:
             return False
     
     async def search_media(self, query: str, file_type: str = None) -> List[Dict[str, Any]]:
-        """Search media by query"""
+        """Search media by query with optimization for large datasets"""
         try:
             # Create search filter
             search_filter = {}
             
-            # Add file type filter if specified
+            # Add file type filter if specified (use compound index)
             if file_type:
                 search_filter["file_type"] = file_type
             
             # Text search in file name and caption
             if query.strip():
-                # Split query into words for better matching
-                query_words = query.strip().split()
-                or_conditions = []
+                # Use more efficient regex patterns
+                escaped_query = re.escape(query.strip())
                 
-                # Search for each word individually and the full query
-                for word in query_words:
+                # Prioritize exact matches and prefix matches for better performance
+                or_conditions = [
+                    {"file_name": {"$regex": f"^{escaped_query}", "$options": "i"}},  # Prefix match (faster)
+                    {"file_name": {"$regex": escaped_query, "$options": "i"}},       # Full text match
+                ]
+                
+                # Add caption search only if query is longer than 3 characters (avoid too broad searches)
+                if len(query.strip()) > 3:
                     or_conditions.extend([
-                        {"file_name": {"$regex": re.escape(word), "$options": "i"}},
-                        {"caption": {"$regex": re.escape(word), "$options": "i"}}
+                        {"caption": {"$regex": f"^{escaped_query}", "$options": "i"}},
+                        {"caption": {"$regex": escaped_query, "$options": "i"}}
                     ])
-                
-                # Also search for the complete query
-                or_conditions.extend([
-                    {"file_name": {"$regex": re.escape(query), "$options": "i"}},
-                    {"caption": {"$regex": re.escape(query), "$options": "i"}}
-                ])
                 
                 search_filter["$or"] = or_conditions
             
-            # Execute search with limit, sorted by date (newest first)
-            cursor = self.collection.find(search_filter).sort("date", -1).limit(Config.MAX_RESULTS)
+            # Use projection to reduce memory usage - only fetch needed fields
+            projection = {
+                "file_id": 1,
+                "file_name": 1,
+                "file_size": 1,
+                "file_type": 1,
+                "caption": 1,
+                "date": 1
+            }
+            
+            # Execute search with optimizations
+            cursor = self.collection.find(
+                search_filter, 
+                projection
+            ).sort("date", -1).limit(Config.MAX_RESULTS)
+            
             results = await cursor.to_list(length=Config.MAX_RESULTS)
             
             return results
@@ -152,22 +167,44 @@ class Database:
             logger.error(f"Error getting total size: {e}")
             return 0
     
-    async def get_recent_media(self, limit: int = 20) -> List[Dict[str, Any]]:
-        """Get recent media files"""
+    async def get_recent_media(self, limit: int = 25) -> List[Dict[str, Any]]:
+        """Get recent media files, optimized for large collections"""
         try:
-            # Add projection to only fetch necessary fields for better performance
-            cursor = self.collection.find(
-                {},
-                {
-                    "file_id": 1,
-                    "file_name": 1,
-                    "file_size": 1,
-                    "file_type": 1,
-                    "caption": 1,
-                    "date": 1
-                }
+            # Use compound index for better performance on large collections
+            projection = {
+                "file_id": 1,
+                "file_name": 1,
+                "file_size": 1,
+                "file_type": 1,
+                "caption": 1,
+                "date": 1
+            }
+            
+            # Get recent videos first (most requested content type)
+            video_cursor = self.collection.find(
+                {"file_type": "video"},
+                projection
             ).sort("date", -1).limit(limit)
-            results = await cursor.to_list(length=limit)
+            
+            results = await video_cursor.to_list(length=limit)
+            
+            # If we don't have enough videos, fill with other media types
+            if len(results) < limit:
+                remaining_limit = limit - len(results)
+                # Skip already fetched video file_ids to avoid duplicates
+                video_ids = [r["file_id"] for r in results]
+                
+                other_cursor = self.collection.find(
+                    {
+                        "file_type": {"$ne": "video"},
+                        "file_id": {"$nin": video_ids}
+                    },
+                    projection
+                ).sort("date", -1).limit(remaining_limit)
+                
+                other_results = await other_cursor.to_list(length=remaining_limit)
+                results.extend(other_results)
+            
             return results
             
         except Exception as e:
