@@ -198,6 +198,9 @@ async def logger_command(client: Client, message: Message):
 async def help_command(client: Client, message: Message):
     """Show help information"""
     
+    # Check if user is admin to show admin commands
+    is_user_admin = is_admin(message.from_user.id)
+    
     help_text = """
 ℹ️ <b>Sidee loo isticmaalo Bot-ka Filimada</b>
 
@@ -217,6 +220,21 @@ Qor <code>@{bot_username} magaca filimka</code> chat kasta.
 
 <b>❓ Caawimaad?</b>
 La xidhiidh maamulka bot-ka.@viizet
+"""
+    
+    # Add admin commands if user is admin
+    if is_user_admin:
+        help_text += """
+
+<b>👨‍💼 Admin Commands:</b>
+• <code>/stats</code> - View bot statistics
+• <code>/total</code> - Show total files count
+• <code>/top10</code> - Show top searched movies & active users
+• <code>/broadcast</code> - Send message to all users
+• <code>/ban</code> - Ban a user
+• <code>/unban</code> - Unban a user
+• <code>/logger</code> - View recent logs
+• <code>/delete</code> - Delete media from database
 """
     
     # Get bot username for examples
@@ -254,3 +272,54 @@ async def delete_command(client: Client, message: Message):
     except Exception as e:
         logger.error(f"Error deleting media: {e}")
         await message.reply("❌ Error deleting media from database.")
+
+@Client.on_message(filters.command("top10") & admin_filter)
+async def top10_command(client: Client, message: Message):
+    """Show top 10 most searched movies and most active users"""
+    try:
+        # Get top searched movies
+        top_movies = await client.db.get_top_searched_movies(10)
+        
+        # Get most active users
+        top_users = await client.db.get_most_active_users(10)
+        
+        response = "📊 <b>Top 10 Analytics Report</b>\n\n"
+        
+        # Top searched movies section
+        response += "🎬 <b>Most Searched Movies:</b>\n"
+        if top_movies:
+            for i, movie in enumerate(top_movies, 1):
+                query = movie['query']
+                count = movie['search_count']
+                # Limit query length for display
+                if len(query) > 30:
+                    query = query[:27] + "..."
+                response += f"{i}. <code>{query}</code> - {count:,} searches\n"
+        else:
+            response += "• No search data available yet\n"
+        
+        response += "\n👥 <b>Most Active Users:</b>\n"
+        if top_users:
+            for i, user in enumerate(top_users, 1):
+                user_id = user['user_id']
+                username = user.get('username')
+                first_name = user.get('first_name', 'Unknown')
+                search_count = user['search_count']
+                
+                # Format user display name
+                if username:
+                    user_display = f"@{username}"
+                else:
+                    user_display = f"{first_name} ({user_id})"
+                
+                response += f"{i}. {user_display} - {search_count:,} searches\n"
+        else:
+            response += "• No user activity data available yet\n"
+        
+        response += f"\n<i>📈 Data shows search activity patterns for optimization</i>"
+        
+        await message.reply(response)
+        
+    except Exception as e:
+        logger.error(f"Error in top10 command: {e}")
+        await message.reply("❌ Error retrieving top 10 analytics data.")
