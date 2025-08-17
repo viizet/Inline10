@@ -1,244 +1,194 @@
-# Telegram Media Search Bot
+# 🎬 Telegram Media Search Bot
 
-A powerful Telegram bot that automatically indexes media files from configured channels into MongoDB and provides instant inline search functionality. Users can search for videos, documents, audio files, photos, and GIFs by typing `@BotUsername query` anywhere in Telegram.
+A powerful Telegram bot that indexes media files from channels and provides instant inline search functionality. Users can search for videos, documents, audio files, photos, and GIFs using `@BotUsername query` in any chat.
 
-## Features
+## ✨ Current Features
 
-- 🔍 **Instant Inline Search** - Search media by typing `@BotUsername query` in any chat
-- 📁 **Multi-format Support** - Videos, documents, audio files, photos, and animated GIFs
-- 🔄 **Auto-indexing** - Automatically indexes new media as it's posted to configured channels
-- 🗃️ **MongoDB Storage** - Efficient database storage with text search optimization
-- 👨‍💼 **Admin Management** - Full admin control with statistics and management commands
-- 🔒 **Authorization System** - User authorization and subscription verification
-- ⚡ **Real-time Processing** - Instant indexing and search results
-- 📊 **Statistics Tracking** - Comprehensive usage and performance statistics
+### 🔍 Smart Media Search System
+- **Inline Search** - Search from any chat using `@BotUsername query`
+- **Multi-format Support** - Videos, documents, audio, photos, GIFs
+- **Text-based Search** - Search by filename and caption content
+- **Recent Videos Display** - Shows recent uploads when no search query
+- **Smart Results** - Cached results with proper file type handling
 
-## How It Works
+### 🤖 Automated Media Indexing
+- **Real-time Indexing** - Automatically indexes new media from configured channels
+- **Manual Indexing** - Admin command `/index` to process historical messages
+- **Duplicate Prevention** - Prevents duplicate entries using unique file IDs
+- **Metadata Extraction** - Captures file size, duration, dimensions, captions
 
-1. **Channel Monitoring**: Bot monitors configured Telegram channels for new media
-2. **Auto-indexing**: Automatically indexes file names, captions, and metadata
-3. **Inline Search**: Users search by typing `@BotUsername search_term` anywhere
-4. **Instant Results**: Returns actual media files that can be sent directly
+### 👨‍💼 Admin Management Tools
+- **Statistics Dashboard** - `/stats` command shows detailed analytics
+- **User Management** - Ban/unban users with `/ban` and `/unban` commands
+- **Broadcast System** - `/broadcast` to send messages to all users
+- **Content Deletion** - `/delete` to remove media from database
+- **Log Monitoring** - `/logger` to view recent bot logs
+- **Top Analytics** - `/top10` shows most searched content and active users
+- **Total Count** - `/total` displays total files and storage size
 
-## Admin Commands
+### 🔒 Security & Authorization
+- **Admin Access Control** - Admin-only commands and management features
+- **User Authorization** - Configurable authorized users list
+- **Channel Subscription** - Require users to join specific channels
+- **Ban System** - Prevent banned users from accessing bot features
+- **Input Validation** - Secure handling of user inputs
 
-- `/start` - Start the bot and show welcome message
-- `/stats` - View detailed bot statistics
-- `/total` - Show total indexed files count
-- `/broadcast <message>` - Send message to all authorized users
-- `/ban <user_id>` - Ban a user from using the bot
-- `/unban <user_id>` - Unban a previously banned user
-- `/logs` - View recent bot logs
-- `/delete <query>` - Delete media matching query from database
-- `/index` - Manually index messages from configured channels
+### ⚡ Performance Features
+- **MongoDB Integration** - Fast text-indexed database search
+- **Async Operations** - Non-blocking database and API operations
+- **Connection Pooling** - Efficient database connection management
+- **Error Handling** - Comprehensive error recovery and logging
+- **Result Caching** - Smart caching for better response times
 
-## Installation & Setup
+### 🎯 User Experience
+- **Somali Language Support** - Native Somali interface and help text
+- **Rich Inline Results** - Proper thumbnails and metadata display
+- **Custom Keyboards** - Search and channel join buttons on results
+- **Subscription Checks** - Automatic verification of channel membership
+- **Help System** - Comprehensive help command with examples
 
-### 1. Clone Repository
+## 🚀 Quick Setup
+
+### Environment Variables
 ```bash
-git clone <your-repo-url>
-cd telegram-media-search-bot
+# Telegram API (Required)
+API_ID=your_api_id
+API_HASH=your_api_hash
+BOT_TOKEN=your_bot_token
+
+# Database (Required)
+DATABASE_URI=your_mongodb_uri
+DATABASE_NAME=your_database_name
+COLLECTION_NAME=media
+
+# Configuration (Required)
+ADMINS=user_id1,user_id2
+CHANNELS=channel_id1,channel_id2
+
+# Optional Settings
+AUTH_CHANNEL=channel_id_for_subscription
+AUTH_USERS=authorized_user_ids
+CACHE_TIME=300
+MAX_RESULTS=50
+USE_CAPTION_FILTER=True
 ```
 
-### 2. Install Dependencies
-```bash
-pip install -r render_requirements.txt
-```
+### Channel Setup
+1. Add your bot to channels as admin
+2. Grant "Delete Messages" permission
+3. Get channel IDs and add to `CHANNELS`
+4. Use `/index` command to process existing media
 
-### 3. Environment Variables
+## 💻 Commands
 
-Set up the following environment variables:
+### User Commands
+- `/start` - Start the bot and get help
+- `/help` - Show usage instructions
 
-#### Required Variables
-- `API_ID` - Your Telegram API ID (get from https://my.telegram.org)
-- `API_HASH` - Your Telegram API Hash (get from https://my.telegram.org)
-- `BOT_TOKEN` - Your bot token from @BotFather
-- `DATABASE_URI` - MongoDB connection string
-- `ADMINS` - Comma-separated admin user IDs (e.g., "123456789,987654321")
-- `CHANNELS` - Comma-separated channel IDs to monitor (e.g., "-1001234567890,-1009876543210")
+### Admin Commands
+- `/stats` - View comprehensive bot statistics
+- `/total` - Show total files count and storage
+- `/top10` - Most searched content and active users
+- `/index` - Manually index channel messages
+- `/delete` - Remove media from database
+- `/broadcast` - Send message to all users
+- `/ban` - Ban a user from using bot
+- `/unban` - Remove user ban
+- `/logger` - View recent log entries
 
-#### Optional Variables
-- `FORCE_SUB_CHANNEL` - Channel ID for subscription verification
-- `COLLECTION_NAME` - MongoDB collection name (default: "media")
-- `DATABASE_NAME` - MongoDB database name (default: "MediaSearchBot")
-
-### 4. Getting Telegram API Credentials
-
-1. Go to https://my.telegram.org
-2. Log in with your phone number
-3. Go to "API Development Tools"
-4. Create a new application
-5. Copy your `API_ID` and `API_HASH`
-6. Create a bot with @BotFather on Telegram
-7. Copy the bot token
-
-### 5. Setting Up MongoDB
-
-1. Create a free MongoDB Atlas account at https://mongodb.com
-2. Create a new cluster
-3. Get your connection string
-4. Add it as `DATABASE_URI` environment variable
-
-### 6. Channel Setup
-
-1. Add your bot to the channels you want to monitor
-2. Make the bot an admin with "Delete Messages" permission
-3. Get channel IDs (they start with -100)
-4. Add them to `CHANNELS` environment variable
-
-## Deployment on Render
-
-This bot is optimized for Render deployment:
-
-### 1. Connect Repository
-- Connect your GitHub repository to Render
-- Choose "Web Service" when creating new service
-
-### 2. Configuration
-Render will automatically detect the `render.yaml` file with these settings:
-- **Build Command**: `pip install -r render_requirements.txt`
-- **Start Command**: `python main.py`
-- **Environment**: Python
-
-### 3. Set Environment Variables
-Add all required environment variables in Render dashboard:
-- API_ID
-- API_HASH  
-- BOT_TOKEN
-- DATABASE_URI
-- ADMINS
-- CHANNELS
-
-### 4. Deploy
-- Click "Deploy" and wait for build completion
-- Bot will start automatically and begin monitoring channels
-
-## File Structure
+## 🔍 Search Examples
 
 ```
-telegram-media-search-bot/
-├── main.py                 # Main application entry point
-├── bot.py                  # Bot client setup and initialization
-├── config.py              # Configuration management
-├── database.py             # MongoDB connection and operations
-├── utils.py                # Utility functions
-├── keep_alive.py           # Keep-alive server for hosting platforms
-├── plugins/                # Plugin-based architecture
-│   ├── admin.py           # Admin commands and management
-│   ├── index.py           # Media indexing functionality
-│   ├── inline.py          # Inline search handling
-│   └── start.py           # Start command and user onboarding
-├── render.yaml            # Render deployment configuration
-├── render_requirements.txt # Python dependencies for Render
-└── README.md              # This documentation
-```
+# Search for action movies
+@BotUsername action movies
 
-## Usage Examples
+# Find specific content
+@BotUsername "movie name"
 
-### For Users
-```
-# Search for videos containing "marvel"
-@BotUsername marvel
+# Search documents
+@BotUsername tutorial pdf
 
-# Search for documents with "report"
-@BotUsername report
-
-# Search for audio files
-@BotUsername song
-
-# Show recent files (empty search)
+# Browse recent videos (empty query)
 @BotUsername
 ```
 
-### For Admins
-```
-# View statistics
-/stats
+## 📊 Database Schema
 
-# Ban a user
-/ban 123456789
-
-# Broadcast message
-/broadcast Hello everyone!
-
-# Manual indexing
-/index
-```
-
-## Technical Details
-
-### Database Schema
+Your bot stores media with this structure:
 ```json
 {
-  "_id": "ObjectId",
   "file_id": "telegram_file_id",
-  "file_unique_id": "unique_telegram_id",
-  "file_name": "filename.mp4",
-  "file_size": 12345678,
+  "file_unique_id": "unique_identifier", 
+  "file_name": "movie_title.mp4",
+  "file_size": 1073741824,
   "file_type": "video",
-  "mime_type": "video/mp4",
-  "caption": "optional_caption",
+  "caption": "Movie description",
   "chat_id": -1001234567890,
+  "chat_title": "Movies Channel",
   "message_id": 12345,
-  "date": "2025-01-01T00:00:00Z",
-  "width": 1920,
-  "height": 1080,
-  "duration": 7200
+  "date": "2025-01-01T00:00:00Z"
 }
 ```
 
-### Search Algorithm
-- Text-based search across file names and captions
-- Supports partial word matching
-- Case-insensitive search
-- MongoDB text indexes for performance
-- Configurable result limits
+## 🌐 Deployment on Replit
 
-### Performance Features
-- Asynchronous processing with asyncio
-- Connection pooling for MongoDB
-- Efficient duplicate prevention
-- Background indexing for minimal user impact
-- Caching for frequently accessed data
+1. **Import to Replit**
+   - Create new Repl from GitHub repository
+   - All dependencies will auto-install
 
-## Troubleshooting
+2. **Configure Secrets**
+   - Open Secrets tab in Replit
+   - Add all environment variables listed above
+   - Make sure BOT_TOKEN, API_ID, API_HASH are correct
 
-### Common Issues
+3. **Run the Bot**
+   - Click Run button
+   - Bot will start automatically
+   - Check console for connection status
 
-1. **Bot not responding**: Check if bot token is correct and bot is started
-2. **No search results**: Verify channels are properly configured and bot has admin access
-3. **Database errors**: Check MongoDB connection string and network access
-4. **Permission errors**: Ensure bot has necessary permissions in channels
+## 🔧 Technical Details
 
-### Logs
-Bot logs are stored in `bot.log` file and can be viewed with `/logs` command.
+- **Framework**: Pyrogram (Async Telegram Bot API)
+- **Database**: MongoDB with text indexing
+- **Architecture**: Plugin-based modular design
+- **Language**: Python 3.11+ with async/await
+- **Hosting**: Replit with keep-alive functionality
 
-## Contributing
+## 📝 File Structure
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+```
+├── main.py              # Bot entry point
+├── bot.py               # Pyrogram client setup
+├── config.py            # Configuration management
+├── database.py          # MongoDB operations
+├── utils.py             # Helper functions
+├── keep_alive.py        # Replit uptime server
+└── Plugins/
+    ├── admin.py         # Admin commands
+    ├── index.py         # Media indexing
+    ├── inline.py        # Inline search handler
+    ├── start.py         # User onboarding
+    └── delete_handler.py # Content deletion
+```
 
-## License
+## 🛠️ Current Status
 
-MIT License - feel free to use and modify for your needs.
+Your bot includes:
+- ✅ Complete inline search system
+- ✅ Admin management dashboard
+- ✅ User authorization and bans
+- ✅ Channel subscription verification
+- ✅ Automated media indexing
+- ✅ Comprehensive logging
+- ✅ Somali language interface
+- ✅ MongoDB integration
+- ✅ Replit deployment ready
 
-## Support
+## 🔧 Troubleshooting
 
-For issues and questions:
-- Check the troubleshooting section
-- Review bot logs
-- Create an issue in the repository
+1. **Bot not responding**: Check BOT_TOKEN in secrets
+2. **Database errors**: Verify DATABASE_URI connection
+3. **No search results**: Run `/index` to process channels
+4. **Permission issues**: Ensure bot is admin in channels
 
-## Credits
-
-Built with:
-- [Pyrogram](https://pyrogram.org) - Modern Telegram Bot API framework
-- [MongoDB](https://mongodb.com) - Document database for media storage
-- [Motor](https://motor.readthedocs.io) - Async MongoDB driver for Python
-
----
-
-**Note**: This bot is designed for educational and personal use. Ensure compliance with Telegram's Terms of Service and respect copyright laws when indexing media content.
+This is your complete, feature-rich Telegram media search bot ready for deployment!
