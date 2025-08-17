@@ -66,34 +66,15 @@ async def inline_query_handler(client: Client, query: InlineQuery):
         )
         return
     
-    # Handle empty query - show recent media
+    # Handle empty query - show recent videos
     if not search_query:
         try:
-            # Get recent media files optimized for large collections
-            recent_media = await client.db.get_recent_media(limit=30)
+            # Get recent videos specifically (limit to 10 for immediate display)
+            recent_videos = await client.db.get_recent_videos(limit=10)
             
-            if not recent_media:
-                results = [
-                    InlineQueryResultArticle(
-                        id="help",
-                        title="🔍 No Media Found",
-                        description="Add media to channels first, then search here",
-                        input_message_content=InputTextMessageContent(
-                            "🔍 <b>No media files found</b>\n\n"
-                            "To use this bot:\n"
-                            "• Add the bot to your media channels\n"
-                            "• Upload some videos, documents, or other files\n"
-                            "• Then search here using keywords\n\n"
-                            "<b>Search Examples:</b>\n"
-                            "• <code>video name</code>\n"
-                            "• <code>keyword | video</code>\n"
-                            "• <code>\"exact phrase\"</code>"
-                        )
-                    )
-                ]
-            else:
-                results = []
-                for idx, media in enumerate(recent_media):
+            results = []
+            if recent_videos:
+                for idx, media in enumerate(recent_videos):
                     try:
                         result = create_inline_result(media, idx)
                         if result:
@@ -101,45 +82,44 @@ async def inline_query_handler(client: Client, query: InlineQuery):
                     except Exception as e:
                         logger.error(f"Error creating inline result: {e}")
                         continue
-                
-                # Ensure we have at least some results
-                if not results:
-                    results = [
-                        InlineQueryResultArticle(
-                            id="fallback",
-                            title="🔍 Recent Videos Available",
-                            description="Type to search your media collection",
-                            input_message_content=InputTextMessageContent(
-                                "🔍 <b>Search your media collection</b>\n\n"
-                                f"You have {len(recent_media)} recent files available.\n"
-                                "Type your search query to find specific content."
-                            )
+            
+            # If no video results, show a helpful message
+            if not results:
+                results = [
+                    InlineQueryResultArticle(
+                        id="no_videos",
+                        title="🎬 No Recent Videos",
+                        description="Upload videos to channels to see them here",
+                        input_message_content=InputTextMessageContent(
+                            "🎬 <b>No recent videos found</b>\n\n"
+                            "Recent videos will appear here when you upload them to your channels.\n"
+                            "Type a search term to find specific content."
                         )
-                    ]
+                    )
+                ]
             
             await query.answer(
                 results=results,
-                cache_time=10,  # Reduced cache time for recent media
+                cache_time=5,  # Short cache for recent videos
                 is_personal=True
             )
             return
             
         except Exception as e:
-            logger.error(f"Error getting recent media: {e}")
-            # Fallback - still try to show something useful
+            logger.error(f"Error getting recent videos: {e}")
+            # Fallback result
             results = [
                 InlineQueryResultArticle(
-                    id="search_prompt",
-                    title="🔍 Search Your 899 Videos",
-                    description="Type to search your media collection",
+                    id="error_fallback",
+                    title="🔍 Search Your Videos",
+                    description="Type to search your video collection",
                     input_message_content=InputTextMessageContent(
-                        "🔍 <b>Search your media collection</b>\n\n"
-                        "You have 899+ videos indexed!\n"
-                        "Type your search query to find specific content.\n\n"
+                        "🔍 <b>Search your video collection</b>\n\n"
+                        "Type your search query to find specific videos.\n\n"
                         "<b>Examples:</b>\n"
-                        "• <code>action</code> - for action movies\n"
-                        "• <code>comedy</code> - for comedy films\n"
-                        "• <code>2023</code> - for recent movies"
+                        "• <code>movie name</code>\n"
+                        "• <code>action</code>\n"
+                        "• <code>2023</code>"
                     )
                 )
             ]
