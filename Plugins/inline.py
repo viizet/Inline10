@@ -153,6 +153,13 @@ async def inline_query_handler(client: Client, query: InlineQuery):
         logger.info(f"Found {len(media_results)} results")
 
         if not media_results:
+            # Log the not found search for analytics
+            await client.db.log_not_found_search(
+                user_id=user_id,
+                query=search_query,
+                username=query.from_user.username
+            )
+            
             from pyrogram.types import InlineQueryResultArticle
             results = [
                 InlineQueryResultArticle(
@@ -165,7 +172,8 @@ async def inline_query_handler(client: Client, query: InlineQuery):
                         "💡 <b>Try:</b>\n"
                         "• Different keywords\n"
                         "• Shorter search terms\n"
-                        "• Check spelling"
+                        "• Check spelling\n\n"
+                        "📝 <i>Your search has been logged for content improvement</i>"
                     )
                 )
             ]
