@@ -144,24 +144,11 @@ class Database:
     async def delete_media(self, chat_id: int, message_id: int) -> bool:
         """Delete media from database"""
         try:
-            # First find the media to get its info for logging
-            media = await self.collection.find_one({
+            result = await self.collection.delete_one({
                 "chat_id": chat_id,
                 "message_id": message_id
             })
-            
-            if media:
-                result = await self.collection.delete_one({
-                    "chat_id": chat_id,
-                    "message_id": message_id
-                })
-                
-                if result.deleted_count > 0:
-                    logger.info(f"Deleted media from database: {media.get('file_name', 'Unknown')} (Type: {media.get('file_type', 'Unknown')})")
-                    return True
-            
-            return False
-            
+            return result.deleted_count > 0
         except Exception as e:
             logger.error(f"Error deleting media: {e}")
             return False
