@@ -69,8 +69,8 @@ Bilow qorista <code>@{bot_username}</code> si aad u raadiso filimada!
 """
 
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎬 Raadi Filimada", switch_inline_query_current_chat="")],
-        [InlineKeyboardButton("ℹ️ Caawimaad", callback_data="help")]
+        [InlineKeyboardButton("🎬 Search Movies", switch_inline_query_current_chat="")],
+        [InlineKeyboardButton("ℹ️ Help", callback_data="help")]
     ])
     
     await message.reply(welcome_text, reply_markup=keyboard)
