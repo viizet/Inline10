@@ -213,26 +213,8 @@ def create_inline_result(media: dict, index: int):
     caption = media.get("caption", "")
     file_id = media.get("file_id")
     
-    # Improve display name for videos
-    display_name = file_name
-    if file_type == "video":
-        # If filename looks generic or is just numbers, try to use caption
-        import re
-        if (file_name.startswith(('video_', 'Video_')) or 
-            re.match(r'^\d+\.mp4$', file_name) or 
-            file_name in ['Unknown', 'unknown']):
-            if caption:
-                # Extract meaningful title from caption (first line, remove emojis/symbols)
-                caption_title = caption.split('\n')[0].strip()
-                caption_title = re.sub(r'[^\w\s-]', ' ', caption_title).strip()
-                if len(caption_title) > 3:  # Only use if meaningful
-                    display_name = caption_title[:50]
-                    if len(caption_title) > 50:
-                        display_name += "..."
-    
     # Truncate long filenames for display
-    if len(display_name) > 50:
-        display_name = display_name[:47] + "..."
+    display_name = file_name if len(file_name) <= 50 else file_name[:47] + "..."
     
     # Create description
     size_text = format_file_size(file_size) if file_size else "Unknown size"
