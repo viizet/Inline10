@@ -202,61 +202,32 @@ async def help_command(client: Client, message: Message):
     # Check if user is admin
     if user_id in Config.ADMINS:
         help_text = """
-🤖 <b>Media Search Bot - Admin Help</b>
+🎬 <b>Bot-ka Filimada - Caawimaad</b>
 
-<b>👤 User Commands:</b>
-• <code>/start</code> - Start the bot and show welcome message
-• <code>/help</code> - Show this help message
+<b>🔍 Sidee loo isticmaalo:</b>
+• Qor <code>@{bot_username} magaca filimka</code> chat kasta
+• Tusaale: <code>@{bot_username} action movies</code>
 
-<b>🔍 Search Usage:</b>
-• Type <code>@{bot_username} query</code> in any chat to search
-• Use file type filters: <code>query | video</code>
-• Example: <code>@{bot_username} python tutorial | video</code>
-
-<b>⚙️ Admin Commands:</b>
-• <code>/stats</code> - View detailed bot statistics
-• <code>/total</code> - Show total indexed files count
-• <code>/broadcast</code> - Send message to all users (reply to message)
-• <code>/ban &lt;user_id&gt;</code> - Ban a user from using the bot
-• <code>/unban &lt;user_id&gt;</code> - Unban a previously banned user
-• <code>/logger</code> - View recent bot logs
-• <code>/delete</code> - Delete media from database (reply to message)
-• <code>/index</code> - Manually index messages from channels
-
-<b>📝 File Type Filters:</b>
-• <code>| video</code> - Videos only
-• <code>| document</code> - Documents only  
-• <code>| audio</code> - Audio files only
-• <code>| photo</code> - Photos only
-• <code>| gif</code> - GIFs only
+<b>⚙️ Amarada Maamulka:</b>
+• <code>/stats</code> - Tirada filimada
+• <code>/broadcast</code> - Fariin u dir dhammaan
+• <code>/ban</code> - Mamnuuc user
+• <code>/index</code> - Index channel
 """
     else:
         help_text = """
-🤖 <b>Media Search Bot - Help</b>
+🎬 <b>Bot-ka Filimada - Caawimaad</b>
 
-<b>🔍 How to Search:</b>
-• Type <code>@{bot_username} your query</code> in any chat
-• I'll show you relevant media files instantly
-• Tap on any result to share it
+<b>🔍 Sidee loo raadiyaa:</b>
+• Qor <code>@{bot_username} magaca filimka</code> chat kasta
+• Filimka waan ku heli doonaa
 
-<b>🎯 Search Examples:</b>
-• <code>@{bot_username} python tutorial</code>
-• <code>@{bot_username} movie | video</code>
-• <code>@{bot_username} ebook | document</code>
-• <code>@{bot_username} music | audio</code>
-• <code>@{bot_username} "exact phrase"</code>
+<b>🎯 Tusaalooyin:</b>
+• <code>@{bot_username} action movies</code>
+• <code>@{bot_username} comedy films</code>
+• <code>@{bot_username} horror movies</code>
 
-<b>📝 File Type Filters:</b>
-• <code>| video</code> - Videos only
-• <code>| document</code> - Documents only  
-• <code>| audio</code> - Audio files only
-• <code>| photo</code> - Photos only
-• <code>| gif</code> - GIFs only
-
-<b>📁 Supported Types:</b>
-🎬 Videos • 📄 Documents • 🎵 Audio • 🖼 Photos • 🎞 GIFs
-
-Need more help? Contact an admin.
+Su'aal kale ma qabta? La xidhiidh maamulka.
 """
     
     # Get bot username for examples
