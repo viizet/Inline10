@@ -197,37 +197,26 @@ async def logger_command(client: Client, message: Message):
 @Client.on_message(filters.command("help"))
 async def help_command(client: Client, message: Message):
     """Show help information"""
-    user_id = message.from_user.id
     
-    # Check if user is admin
-    if user_id in Config.ADMINS:
-        help_text = """
-🎬 <b>Bot-ka Filimada - Caawimaad</b>
+    help_text = """
+ℹ️ <b>Sidee loo isticmaalo Bot-ka Filimada</b>
 
-<b>🔍 Sidee loo isticmaalo:</b>
-• Qor <code>@{bot_username} magaca filimka</code> chat kasta
-• Tusaale: <code>@{bot_username} action movies</code>
-
-<b>⚙️ Amarada Maamulka:</b>
-• <code>/stats</code> - Tirada filimada
-• <code>/broadcast</code> - Fariin u dir dhammaan
-• <code>/ban</code> - Mamnuuc user
-• <code>/index</code> - Index channel
-"""
-    else:
-        help_text = """
-🎬 <b>Bot-ka Filimada - Caawimaad</b>
-
-<b>🔍 Sidee loo raadiyaa:</b>
-• Qor <code>@{bot_username} magaca filimka</code> chat kasta
-• Filimka waan ku heli doonaa
+<b>🔍 Raadinta:</b>
+Qor <code>@{bot_username} magaca filimka</code> chat kasta.
 
 <b>🎯 Tusaalooyin:</b>
 • <code>@{bot_username} action movies</code>
 • <code>@{bot_username} comedy films</code>
 • <code>@{bot_username} horror movies</code>
+• <code>@{bot_username} "specific movie name"</code>
 
-Su'aal kale ma qabta? La xidhiidh maamulka.
+<b>📝 Tilmaamo:</b>
+• Isticmaal erayo gaar ah
+• Qor magaca filimka si sax ah
+• Isticmaal <code>" "</code> magaca dhabta ah
+
+<b>❓ Caawimaad?</b>
+La xidhiidh maamulka bot-ka.
 """
     
     # Get bot username for examples
