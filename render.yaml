@@ -3,7 +3,7 @@ services:
     name: telegram-media-search-bot
     env: python
     buildCommand: pip install -r render_requirements.txt
-    startCommand: python bot.py
+    startCommand: python3 bot.py
     envVars:
       - key: API_ID
         sync: false
